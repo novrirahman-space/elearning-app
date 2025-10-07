@@ -6,9 +6,7 @@ use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Email;
 use Illuminate\Validation\ValidationException;
-use PHPUnit\Logging\OpenTestReporting\Status;
 
 class AuthController extends Controller
 {
@@ -21,23 +19,13 @@ class AuthController extends Controller
             'role' => 'nullable|string|in:lecturer,student'
         ]);
 
-        if (User::where('email', $validated['email'])->exists()){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Email is already registered.'
-            ], 409);
-        }
-
         $role = $validated['role'] ?? 'student';
-        if ($role === 'lecturer') {
-            $role = 'lecturer';
-        }
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role' => $validated['role']
+            'password' => $validated['password'],
+            'role' => $role
         ]);
 
         $token = $user->createToken('api_token')->plainTextToken;
