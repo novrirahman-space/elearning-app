@@ -25,6 +25,16 @@ class User extends Authenticatable
         'role'
     ];
 
+    public function coursesTaught()
+    {
+        return $this->hasMany(Course::class, 'lecturer_id');
+    }
+
+    public function coursesEnrolled()
+    {
+        return $this->belongsToMany(Course::class, 'course_user')->withTimestamps();
+    }
+
     public function isLecturer(): bool
     {
         return $this->role === 'lecturer';
