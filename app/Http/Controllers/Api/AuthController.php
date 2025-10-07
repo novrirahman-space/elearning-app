@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Email;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Logging\OpenTestReporting\Status;
 
 class AuthController extends Controller
 {
@@ -16,18 +17,38 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8'
+            'password' => 'required|string|min:8',
+            'role' => 'nullable|string|in:lecturer,student'
         ]);
+
+        if (User::where('email', $validated['email'])->exists()){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Email is already registered.'
+            ], 409);
+        }
+
+        $role = $validated['role'] ?? 'student';
+        if ($role === 'lecturer') {
+            $role = 'lecturer';
+        }
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'password' => Hash::make($validated['password'])
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role']
         ]);
 
+        $token = $user->createToken('api_token')->plainTextToken;
+
         return response()->json([
-            'user' => $user,
-            'token' => $user->createToken('api_token')->plainTextToken
+            'status' => 'success',
+            'message' => 'Registration successful.',
+            'data' => [
+                'user' => $user,
+                'token' => $token
+            ],
         ], 201);
     }
 
