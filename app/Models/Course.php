@@ -20,5 +20,10 @@ class Course extends Model
     {
         return $this->belongsToMany(User::class, 'course_user')->withTimestamps();
     }
+
+    public function materials()
+    {
+        return $this->hasMany(Material::class);
+    }
     //
 }

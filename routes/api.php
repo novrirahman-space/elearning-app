@@ -5,6 +5,15 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\MaterialController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Dosen upload materi
+    Route::middleware('role:lecturer')->post('/materials', [MaterialController::class, 'store']);
+
+    // Mahasiswa download materi
+    Route::middleware('role:student')->get('/materials/{id}/download', [MaterialController::class, 'download']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/courses', [CourseController::class, 'index']);
