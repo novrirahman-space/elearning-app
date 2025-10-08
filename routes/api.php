@@ -10,6 +10,16 @@ use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\SubmissionController;
 use App\Http\Controllers\Api\DiscussionController;
 use App\Http\Controllers\Api\ReplyController;
+use App\Http\Controllers\Api\ReportController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Statistik untuk dosen
+    Route::middleware('role:lecturer')->get('/reports/courses', [ReportController::class, 'coursesReport']);
+    Route::middleware('role:lecturer')->get('/reports/assignments', [ReportController::class, 'assignmentsReport']);
+
+    // Statistik mahasiswa
+    Route::get('/reports/student/{id}', [ReportController::class, 'studentReport']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     // Dosen & Mahasiswa bisa buat diskusi
