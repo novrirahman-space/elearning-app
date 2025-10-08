@@ -6,6 +6,19 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\AssignmentController;
+use App\Http\Controllers\Api\SubmissionController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Dosen buat tugas
+    Route::middleware('role:lecturer')->post('/assignments', [AssignmentController::class, 'store']);
+
+    // Mahasiswa unggah jawaban
+    Route::middleware('role:student')->post('/submissions', [SubmissionController::class, 'store']);
+
+    // Dosen beri nilai
+    Route::middleware('role:lecturer')->post('/submissions/{id}/grade', [SubmissionController::class, 'grade']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     // Dosen upload materi
