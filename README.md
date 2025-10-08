@@ -1,61 +1,129 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 📚 E-Learning API — Laravel 12 Project Test
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+**E-Learning API** adalah aplikasi backend yang dibangun menggunakan **Laravel 12** sebagai bagian dari tes teknikal programmer.  
+Project ini dirancang untuk mendemonstrasikan kemampuan membangun REST API yang terstruktur, aman, dan siap dikembangkan ke sistem pembelajaran daring (e-learning).
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Fitur Utama
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 🔐 1. Autentikasi & Role
+- Registrasi dan login menggunakan **Laravel Sanctum**  
+- Role otomatis:
+  - `teacher` → jika diisi saat registrasi  
+  - `student` → default jika tidak diisi
+- Endpoint:
+  - `POST /api/register`
+  - `POST /api/login`
+  - `POST /api/logout`
+  - `GET /api/me`
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+### 📘 2. Manajemen Mata Kuliah
+- Dosen dapat menambahkan, mengedit, dan menghapus mata kuliah  
+- Mahasiswa dapat melihat daftar dan *enroll* ke mata kuliah  
+- Relasi:
+  - Dosen **hasMany** Course  
+  - Mahasiswa **belongsToMany** Course  
+- Endpoint:  
+  - `GET /api/courses`  
+  - `POST /api/courses`  
+  - `PUT /api/courses/{id}`  
+  - `DELETE /api/courses/{id}` *(Soft Delete — lihat di bawah)*  
+  - `POST /api/courses/{id}/enroll`
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 🔹 2.1 Soft Deletes (Penghapusan Aman)
+- Implementasi **Eloquent SoftDeletes** pada model `Course`  
+- Saat dosen menghapus mata kuliah, data **tidak dihapus permanen** dari database  
+- Kolom `deleted_at` diisi otomatis oleh Laravel  
+- Data dapat dipulihkan jika dibutuhkan  
+- Keuntungan:
+  - Aman terhadap kehilangan data
+  - Cocok untuk audit log & riwayat kursus
+- Endpoint terkait:
+  - `DELETE /api/courses/{id}` → menandai course sebagai dihapus
+  - (opsional) `GET /api/courses/trashed` → menampilkan course yang sudah dihapus (jika diaktifkan)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+### 📂 3. Upload & Download Materi
+- Dosen dapat mengunggah file materi  
+- Mahasiswa dapat mengunduhnya  
+- Disimpan menggunakan Laravel Storage  
+- Endpoint:  
+  - `POST /api/materials`  
+  - `GET /api/materials/{id}/download`
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+### 📝 4. Tugas & Penilaian
+- Dosen membuat tugas dengan deadline  
+- Mahasiswa mengunggah jawaban  
+- Dosen memberi nilai  
+- Endpoint:  
+  - `POST /api/assignments`  
+  - `POST /api/submissions`  
+  - `POST /api/submissions/{id}/grade`
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+### 💬 5. Forum Diskusi
+- Dosen & Mahasiswa bisa membuat topik dan balasan diskusi  
+- Real-time update menggunakan **Laravel Reverb (WebSocket)**  
+- Event: `DiscussionCreated` dan `ReplyCreated`  
+- Frontend listener: `forum.js` menggunakan **Laravel Echo + Pusher protocol**
+- Endpoint:  
+  - `POST /api/discussions`  
+  - `POST /api/discussions/{id}/replies`  
+  - Frontend live page: `/forum/{course}`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+### 📈 6. Laporan & Statistik
+- Statistik jumlah mahasiswa per mata kuliah  
+- Statistik tugas yang sudah/belum dinilai  
+- Rata-rata nilai mahasiswa  
+- Menggunakan **Eloquent Aggregates (count, sum, avg)**  
+- Endpoint:  
+  - `GET /api/reports/courses`  
+  - `GET /api/reports/assignments`  
+  - `GET /api/reports/students/{id}`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+### 📧 7. Notifikasi Email
+- Menggunakan **Mailtrap (sandbox)** untuk pengujian email  
+- Email dikirim otomatis:
+  - Saat dosen membuat tugas baru  
+  - Saat dosen memberi nilai  
+- Mail menggunakan class `NewAssignmentNotification` dan `GradedSubmissionNotification`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### ⚡ 8. Real-Time Forum (Laravel Reverb)
+- Implementasi **Laravel Reverb**, pengganti BeyondCode WebSockets  
+- Private channel `course.{id}` untuk setiap mata kuliah  
+- Token-based auth via `localStorage`  
+- Tes real-time dilakukan via:
+  - Postman (HTTP API)
+  - Safari browser (client listener)
+- Semua event tampil live tanpa reload
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 🧰 Teknologi yang Digunakan
+
+| Komponen | Teknologi |
+|-----------|------------|
+| Framework | Laravel 12 |
+| Database | MySQL |
+| Auth | Laravel Sanctum |
+| Realtime | Laravel Reverb + Echo |
+| SoftDeletes | Eloquent Trait `Illuminate\Database\Eloquent\SoftDeletes` |
+| Testing | Postman & manual verification |
+| File Storage | Laravel Storage (local) |
+| Email | Mailtrap SMTP |
+| Frontend minimal | Blade + Vite |
