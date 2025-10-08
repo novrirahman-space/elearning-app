@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Course;
+use App\Mail\NewAssignmentNotification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
 
@@ -28,6 +30,9 @@ class AssignmentController extends Controller
             'deadline' => 'required|date'
         ]);
 
+        // Ambil course beserta mahasiswa yang terdaftar
+        $course = Course::with('students')->findOrFail($validated['course_id']);
+
         // Cek apakah course milik dosen
         $course = Course::findOrFail($validated['course_id']);
         if ($course->lecturer_id !== $user->id) {
@@ -38,9 +43,16 @@ class AssignmentController extends Controller
 
         $assignment = Assignment::create($validated);
 
+        // Kirim Notifikasi Email Ke Mahasiswa
+        if ($course->students && $course->students->count() > 0) {
+            foreach ($course->students as $student) {
+                Mail::to($student->email)->send(new NewAssignmentNotification($assignment));
+            }
+        }
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Assignment created successfully.',
+            'message' => 'Assignment created and notifications sent successfully.',
             'data' => $assignment
         ], 201);
     }

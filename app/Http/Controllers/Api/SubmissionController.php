@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
 use App\Models\Submission;
+use App\Mail\GradedSubmissionNotification;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Contracts\Service\Attribute\Required;
@@ -84,6 +86,9 @@ class SubmissionController extends Controller
         $submission->update([
             'score' => $validated['score']
         ]);
+
+        // Kirim Notifikasi Nilai ke Mahasiswa
+        Mail::to($submission->student->email)->send(new GradedSubmissionNotification($submission));
 
         return response()->json([
             'status' => 'success',
