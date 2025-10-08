@@ -8,6 +8,16 @@ use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\AssignmentController;
 use App\Http\Controllers\Api\SubmissionController;
+use App\Http\Controllers\Api\DiscussionController;
+use App\Http\Controllers\Api\ReplyController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    // Dosen & Mahasiswa bisa buat diskusi
+    Route::post('/discussions', [DiscussionController::class, 'store']);
+
+    // Dosen & Mahasiswa bisa balas diskusi
+    Route::post('/discussions/{id}/replies', [ReplyController::class, 'store']);
+});
 
 Route::middleware('auth:sanctum')->group(function () {
     // Dosen buat tugas
