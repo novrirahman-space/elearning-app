@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\ReplyCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Discussion;
 use App\Models\Reply;
@@ -36,6 +37,9 @@ class ReplyController extends Controller
             'user_id' => $user->id,
             'content' => $validated['content']
         ]);
+
+        // Trigger event broadcast
+        event(new ReplyCreated($reply));
 
         return response()->json([
             'status' => 'success',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Discussion;
+use App\Events\DiscussionCreated;
 use Illuminate\Http\Request;
 
 class DiscussionController extends Controller
@@ -36,6 +37,9 @@ class DiscussionController extends Controller
             'user_id' => $user->id,
             'content' => $validated['content']
         ]);
+
+        // Trigger event broadcast
+        event(new DiscussionCreated($discussion));
 
         return response()->json([
             'status' => 'success',
